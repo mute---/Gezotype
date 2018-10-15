@@ -67,6 +67,10 @@ namespace Gezotype.Android.Views
             var sideBarHeight = MeasuredHeight / 3;
             canvas.DrawLine(sideXOffset, sideBarHeight, sideXOffset, sideBarHeight * 2, _paint);
             canvas.DrawLine(MeasuredWidth - sideXOffset, sideBarHeight, MeasuredWidth - sideXOffset, sideBarHeight * 2, _paint);
+
+
+            // Draw layout.
+
         }
 
         protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
