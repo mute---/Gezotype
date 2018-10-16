@@ -4,7 +4,7 @@ namespace Gezotype.PCL
     public class Keyboard
     {
         private KeyboardState _currentState = KeyboardState.Normal;
-        public KeyboardLayout _currentLayout { get; } = new KeyboardLayout();
+        public Keymap _currentKeymap { get; } = new Keymap();
 
         public char GetL1() => GetL(0);
         public char GetL2() => GetL(1);
@@ -23,48 +23,51 @@ namespace Gezotype.PCL
 
         public void SetIn() 
         {
-            _currentState = KeyboardState.In;
+            if (_currentState == KeyboardState.Normal)
+                _currentState = KeyboardState.In;
         }
 
         public void SetOut() 
         {
-            _currentState = KeyboardState.Out;
+            if (_currentState == KeyboardState.Normal)
+                _currentState = KeyboardState.Out;
         }
 
         public void SetInOut() 
         {
-            _currentState = KeyboardState.InOut;
+            if (_currentState == KeyboardState.Out)
+                _currentState = KeyboardState.InOut;
         }
 
-        private char GetR(int idx)
+        public char GetR(int idx)
         {
             switch (_currentState)
             {
                 case KeyboardState.Normal:
-                    return _currentLayout.R[idx];
+                    return _currentKeymap.R[idx];
                 case KeyboardState.In:
-                    return _currentLayout.RIn[idx];
+                    return _currentKeymap.RIn[idx];
                 case KeyboardState.Out:
-                    return _currentLayout.ROut[idx];
+                    return _currentKeymap.ROut[idx];
                 case KeyboardState.InOut:
-                    return _currentLayout.RInOut[idx];
+                    return _currentKeymap.RInOut[idx];
                 default:
                     throw new Exception("Invalid keyboard state");
             }
         }
-        
-        private char GetL(int idx)
+
+        public char GetL(int idx)
         {
             switch (_currentState)
             {
                 case KeyboardState.Normal:
-                    return _currentLayout.L[idx];
+                    return _currentKeymap.L[idx];
                 case KeyboardState.In:
-                    return _currentLayout.LIn[idx];
+                    return _currentKeymap.LIn[idx];
                 case KeyboardState.Out:
-                    return _currentLayout.LOut[idx];
+                    return _currentKeymap.LOut[idx];
                 case KeyboardState.InOut:
-                    return _currentLayout.LInOut[idx];
+                    return _currentKeymap.LInOut[idx];
                 default:
                     throw new Exception("Invalid keyboard state");
             }
