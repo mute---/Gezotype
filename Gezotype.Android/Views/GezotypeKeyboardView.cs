@@ -1,11 +1,10 @@
 ﻿using Android.Graphics;
 using Android.Content;
-using Android.InputMethodServices;
 using Android.Util;
 using Android.Views;
-using Android.Widget;
 using System;
 using Gezotype.PCL;
+using System.Collections.Generic;
 
 namespace Gezotype.Android.Views
 {
@@ -14,7 +13,7 @@ namespace Gezotype.Android.Views
         public event EventHandler<CharRecognizedEventArgs> CharRecongnized;
 
         private readonly Path _touchPath = new Path();
-        private readonly Path _mainClusterPath = new Path();
+        private readonly Dictionary<int, Path> _touchPaths = new Dictionary<int, Path>();
         private readonly Paint _paint = new Paint();
 
         public GezotypeKeyboardView(Context context, IAttributeSet set) : base(context, set) 
@@ -39,7 +38,10 @@ namespace Gezotype.Android.Views
         {
             _paint.Color = Color.Gray;
 
-            canvas.DrawPath(_touchPath, _paint);
+            foreach(var path in _touchPaths.Values)
+            {
+                canvas.DrawPath(path, _paint);
+            }
         }
 
         private void DrawGrid(Canvas canvas)
@@ -67,10 +69,6 @@ namespace Gezotype.Android.Views
             var sideBarHeight = MeasuredHeight / 3;
             canvas.DrawLine(sideXOffset, sideBarHeight, sideXOffset, sideBarHeight * 2, _paint);
             canvas.DrawLine(MeasuredWidth - sideXOffset, sideBarHeight, MeasuredWidth - sideXOffset, sideBarHeight * 2, _paint);
-
-
-            // Draw layout.
-
         }
 
         protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
@@ -80,21 +78,31 @@ namespace Gezotype.Android.Views
 
         public override bool OnTouchEvent(MotionEvent e)
         {
-            switch (e.Action)
+            var id = e.GetPointerId(e.ActionIndex);
+            switch (e.ActionMasked)
             {
                 case MotionEventActions.Down:
-                    _touchPath.Reset();
-                    _touchPath.MoveTo(e.GetX(), e.GetY());
+                case MotionEventActions.PointerDown:
+                    var newTouch = new Path();
+                    newTouch.MoveTo(e.GetX(), e.GetY());
+                    _touchPaths.Add(id, newTouch);
+
                     Invalidate();
                     return true;
 
                 case MotionEventActions.Move:
-                    _touchPath.LineTo(e.GetX(), e.GetY());
+                    _touchPaths[id].LineTo(e.GetX(), e.GetY());
                     Invalidate();
                     return true;
 
                 case MotionEventActions.Up:
-                    _touchPath.Reset();
+                case MotionEventActions.PointerUp:
+                    _touchPaths.Remove(id);
+                    Invalidate();
+                    return true;
+
+                case MotionEventActions.Cancel:
+                    _touchPaths.Clear();
                     Invalidate();
                     return true;
 
