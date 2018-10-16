@@ -1,7 +1,7 @@
 ﻿using System;
 namespace Gezotype.PCL
 {
-    public class KeyboardLayout
+    public class Keymap
     {
         public string L { get; } = "оеиа";
         public string R { get; } = "стрн";
