@@ -16,27 +16,91 @@ namespace Gezotype.PCL
         public char GetR3() => GetR(2);
         public char GetR4() => GetR(3);
 
-        public void ResetState() 
+        public void ResetState()
         {
             _currentState = KeyboardState.Normal;
         }
 
-        public void SetIn() 
+        public void SetIn()
         {
             if (_currentState == KeyboardState.Normal)
                 _currentState = KeyboardState.In;
         }
 
-        public void SetOut() 
+        public void SetOut()
         {
             if (_currentState == KeyboardState.Normal)
                 _currentState = KeyboardState.Out;
         }
 
-        public void SetInOut() 
+        public void SetInOut()
         {
             if (_currentState == KeyboardState.Out)
                 _currentState = KeyboardState.InOut;
+        }
+
+        public string GetLLabels()
+        {
+            switch (_currentState)
+            {
+                case KeyboardState.Normal:
+                    return _currentKeymap.L;
+                case KeyboardState.In:
+                    return _currentKeymap.LIn;
+                case KeyboardState.Out:
+                    return _currentKeymap.LOut;
+                case KeyboardState.InOut:
+                    return _currentKeymap.LInOut;
+                default:
+                    return "";
+            }
+        }
+
+        public string GetRLabels()
+        {
+            switch (_currentState)
+            {
+                case KeyboardState.Normal:
+                    return _currentKeymap.R;
+                case KeyboardState.In:
+                    return _currentKeymap.RIn;
+                case KeyboardState.Out:
+                    return _currentKeymap.ROut;
+                case KeyboardState.InOut:
+                    return _currentKeymap.RInOut;
+                default:
+                    return "";
+            }
+        }
+
+        public string GetLInLabels()
+        {
+            return _currentState == KeyboardState.Normal ? _currentKeymap.LIn : "";
+        }
+
+        public string GetRInLabels()
+        {
+            return _currentState == KeyboardState.Normal ? _currentKeymap.RIn : "";
+        }
+
+        public string GetLOutLabels()
+        {
+            return _currentState == KeyboardState.Normal ? _currentKeymap.LOut : "";
+        }
+
+        public string GetROutLabels()
+        {
+            return _currentState == KeyboardState.Normal ? _currentKeymap.ROut : "";
+        }
+
+        public string GetLInOutLabels()
+        {
+            return _currentState == KeyboardState.Normal || _currentState == KeyboardState.Out ? _currentKeymap.LInOut : "";
+        }
+
+        public string GetRInOutLabels()
+        {
+            return _currentState == KeyboardState.Normal || _currentState == KeyboardState.Out ? _currentKeymap.RInOut : "";
         }
 
         public char GetR(int idx)
