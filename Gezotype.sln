@@ -4,6 +4,8 @@ VisualStudioVersion = 15.0.28010.2046
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gezotype.Android", "Gezotype.Android\Gezotype.Android.csproj", "{7DA506EC-D938-46D2-A82E-E0E0910B23B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gezotype.PCL", "Gezotype.PCL\Gezotype.PCL.csproj", "{9FDF0E7E-ADC2-47A3-9737-6CC6CC83B38D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{7DA506EC-D938-46D2-A82E-E0E0910B23B4}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{7DA506EC-D938-46D2-A82E-E0E0910B23B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7DA506EC-D938-46D2-A82E-E0E0910B23B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FDF0E7E-ADC2-47A3-9737-6CC6CC83B38D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FDF0E7E-ADC2-47A3-9737-6CC6CC83B38D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FDF0E7E-ADC2-47A3-9737-6CC6CC83B38D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FDF0E7E-ADC2-47A3-9737-6CC6CC83B38D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

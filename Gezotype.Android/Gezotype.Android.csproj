@@ -70,5 +70,11 @@
     <Folder Include="Resources\mipmap-xxhdpi\" />
     <Folder Include="Resources\mipmap-xxxhdpi\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Gezotype.PCL\Gezotype.PCL.csproj">
+      <Project>{9FDF0E7E-ADC2-47A3-9737-6CC6CC83B38D}</Project>
+      <Name>Gezotype.PCL</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
 </Project>
