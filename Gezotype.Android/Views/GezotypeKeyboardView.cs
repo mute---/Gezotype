@@ -5,6 +5,7 @@ using Android.Views;
 using System;
 using Gezotype.PCL;
 using System.Collections.Generic;
+using Android.Text;
 
 namespace Gezotype.Android.Views
 {
@@ -14,6 +15,7 @@ namespace Gezotype.Android.Views
 
         private readonly Dictionary<int, Path> _touchPaths = new Dictionary<int, Path>();
         private readonly Paint _paint = new Paint();
+        private readonly TextPaint _labelPaint = new TextPaint();
         private readonly Keyboard _keyboard = new Keyboard();
 
         public GezotypeKeyboardView(Context context, IAttributeSet set) : base(context, set) 
@@ -26,6 +28,9 @@ namespace Gezotype.Android.Views
             _paint.SetStyle(Paint.Style.Stroke);
             _paint.StrokeWidth = 2  * Resources.DisplayMetrics.Density;
             _paint.AntiAlias = true;
+
+            _labelPaint.SetStyle(Paint.Style.Fill);
+            _labelPaint.AntiAlias = true;
         }
 
         protected override void OnDraw(Canvas canvas)
@@ -37,12 +42,99 @@ namespace Gezotype.Android.Views
 
         private void DrawLabels(Canvas canvas)
         {
-            _paint.Color = Color.Black;
+            _labelPaint.Color = Color.Black;
+
+            var sideXOffset = MeasuredWidth / 4.5f;
+            var sideBarHeight = MeasuredHeight / 3;
+            var labelYOffset = sideBarHeight / 4;
+            var labelXOffset = labelYOffset / 2;
+            var textSize = labelYOffset / 2.5f * Resources.DisplayMetrics.Density;
+            var baselineShift = textSize / 3;
+            _labelPaint.TextSize = textSize;
 
             // Draw left in.
-            foreach(var @char in _keyboard.GetLInLabels())
+            _labelPaint.TextAlign = Paint.Align.Center;
+            var lInLabels = _keyboard.GetLInLabels();
+            
+            for (int i = 1; i < 5; ++i)
             {
+                canvas.DrawText(lInLabels[i - 1].ToString(), 
+                    sideXOffset - labelXOffset, 
+                    sideBarHeight + labelYOffset * i - baselineShift, 
+                    _labelPaint);
+            }
 
+            // Draw left out.
+            var lOutLabels = _keyboard.GetLOutLabels();
+            for (int i = 1; i < 5; ++i)
+            {
+                canvas.DrawText(lOutLabels[i - 1].ToString(),
+                    sideXOffset + labelXOffset,
+                    sideBarHeight + labelYOffset * i - baselineShift,
+                    _labelPaint);
+            }
+
+            // Draw left inout.
+            var lInOutLabels = _keyboard.GetLInOutLabels();
+            for (int i = 1; i < 5; ++i)
+            {
+                canvas.DrawText(lInOutLabels[i - 1].ToString(),
+                    sideXOffset + labelXOffset * 2.5f,
+                    sideBarHeight + labelYOffset * i - baselineShift,
+                    _labelPaint);
+            }
+
+            // Draw right in.
+            _labelPaint.TextAlign = Paint.Align.Center;
+            var rInLabels = _keyboard.GetRInLabels();
+
+            for (int i = 1; i < 5; ++i)
+            {
+                canvas.DrawText(rInLabels[i - 1].ToString(),
+                    MeasuredWidth - sideXOffset + labelXOffset,
+                    sideBarHeight + labelYOffset * i - baselineShift,
+                    _labelPaint);
+            }
+
+            // Draw left out.
+            var rOutLabels = _keyboard.GetROutLabels();
+            for (int i = 1; i < 5; ++i)
+            {
+                canvas.DrawText(rOutLabels[i - 1].ToString(),
+                    MeasuredWidth - sideXOffset - labelXOffset,
+                    sideBarHeight + labelYOffset * i - baselineShift,
+                    _labelPaint);
+            }
+
+            // Draw left inout.
+            var rInOutLabels = _keyboard.GetRInOutLabels();
+            for (int i = 1; i < 5; ++i)
+            {
+                canvas.DrawText(rInOutLabels[i - 1].ToString(),
+                    MeasuredWidth - sideXOffset - labelXOffset * 2.5f,
+                    sideBarHeight + labelYOffset * i - baselineShift,
+                    _labelPaint);
+            }
+
+            // Draw center.
+            var l = _keyboard.GetLLabels();
+            var r = _keyboard.GetRLabels();
+
+            var cx = MeasuredWidth / 2;
+            var cy = MeasuredHeight / 2;
+            var centerBarHeight = MeasuredHeight / 6;
+            var centerLabelYOffset = centerBarHeight / 2 + baselineShift;
+
+            for (int i = 1; i < 5; ++i)
+            {
+                canvas.DrawText(l[i - 1].ToString(),
+                    cx - labelXOffset,
+                    centerBarHeight * i + centerLabelYOffset,
+                    _labelPaint);
+                canvas.DrawText(r[i - 1].ToString(),
+                    cx + labelXOffset,
+                    centerBarHeight * i + centerLabelYOffset,
+                    _labelPaint);
             }
         }
 
