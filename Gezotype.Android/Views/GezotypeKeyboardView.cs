@@ -168,7 +168,23 @@ namespace Gezotype.Android.Views
 
         private void DetectCollisions(MotionEvent e, int idx)
         {
-            
+            // Check center first.
+            var x = (int)e.GetX(idx);
+            var y = (int)e.GetY(idx);
+
+            if (x < cx + 5 && x > cx - 5 && y >= centerBarHeight && y <= centerBarHeight * 5)
+            {
+                var barIdx = (y / centerBarHeight) - 1;
+                if (IsRightMotion(x))
+                    RaiseCharRecongnized(_keyboard.GetR(barIdx).ToString());
+                else
+                    RaiseCharRecongnized(_keyboard.GetL(barIdx).ToString());
+            }
+        }
+
+        private bool IsRightMotion(float x)
+        {
+            return x <= cx;
         }
 
         protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
@@ -207,6 +223,7 @@ namespace Gezotype.Android.Views
                     for (int i = 0; i < e.PointerCount; ++i)
                     {
                         _touchPaths[e.GetPointerId(i)].LineTo(e.GetX(i), e.GetY(i));
+                        System.Diagnostics.Debug.WriteLine($"Pointer {i} moved to {e.GetX(i)}, {e.GetY(i)}");
                         DetectCollisions(e, i);
                     }
                     Invalidate();
