@@ -12,9 +12,9 @@ namespace Gezotype.Android.Views
     {
         public event EventHandler<CharRecognizedEventArgs> CharRecongnized;
 
-        private readonly Path _touchPath = new Path();
         private readonly Dictionary<int, Path> _touchPaths = new Dictionary<int, Path>();
         private readonly Paint _paint = new Paint();
+        private readonly Keyboard _keyboard = new Keyboard();
 
         public GezotypeKeyboardView(Context context, IAttributeSet set) : base(context, set) 
         {
@@ -31,7 +31,19 @@ namespace Gezotype.Android.Views
         protected override void OnDraw(Canvas canvas)
         {
             DrawGrid(canvas);
+            DrawLabels(canvas);
             DrawTouchPath(canvas);
+        }
+
+        private void DrawLabels(Canvas canvas)
+        {
+            _paint.Color = Color.Black;
+
+            // Draw left in.
+            foreach(var @char in _keyboard.GetLInLabels())
+            {
+
+            }
         }
 
         private void DrawTouchPath(Canvas canvas)
@@ -84,20 +96,28 @@ namespace Gezotype.Android.Views
                 case MotionEventActions.Down:
                 case MotionEventActions.PointerDown:
                     var newTouch = new Path();
-                    newTouch.MoveTo(e.GetX(), e.GetY());
+                    newTouch.MoveTo(e.GetX(e.ActionIndex), e.GetY(e.ActionIndex));
                     _touchPaths.Add(id, newTouch);
+                    System.Diagnostics.Debug.WriteLine($"Start touch {id}");
 
                     Invalidate();
                     return true;
 
                 case MotionEventActions.Move:
-                    _touchPaths[id].LineTo(e.GetX(), e.GetY());
+                    for (int i = 0; i < e.PointerCount; ++i)
+                    {
+                        _touchPaths[e.GetPointerId(i)].LineTo(e.GetX(i), e.GetY(i));
+                    }
+                    //System.Diagnostics.Debug.WriteLine($"Touch {id} moved to {e.GetX(e.ActionIndex)}, {e.GetY(e.ActionIndex)}");
+
                     Invalidate();
                     return true;
 
                 case MotionEventActions.Up:
                 case MotionEventActions.PointerUp:
                     _touchPaths.Remove(id);
+                    System.Diagnostics.Debug.WriteLine($"End touch {id}");
+
                     Invalidate();
                     return true;
 
