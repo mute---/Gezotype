@@ -18,6 +18,17 @@ namespace Gezotype.Android.Views
         private readonly TextPaint _labelPaint = new TextPaint();
         private readonly Keyboard _keyboard = new Keyboard();
 
+        int cx;
+        int cy;
+        int centerBarHeight;
+        float sideXOffset;
+        float sideBarHeight;
+        float labelYOffset;
+        float labelXOffset;
+        float textSize;
+        float baselineShift;
+        float centerLabelYOffset;
+
         public GezotypeKeyboardView(Context context, IAttributeSet set) : base(context, set) 
         {
             Init(); 
@@ -43,13 +54,6 @@ namespace Gezotype.Android.Views
         private void DrawLabels(Canvas canvas)
         {
             _labelPaint.Color = Color.Black;
-
-            var sideXOffset = MeasuredWidth / 4.5f;
-            var sideBarHeight = MeasuredHeight / 3;
-            var labelYOffset = sideBarHeight / 4;
-            var labelXOffset = labelYOffset / 2;
-            var textSize = labelYOffset / 2.5f * Resources.DisplayMetrics.Density;
-            var baselineShift = textSize / 3;
             _labelPaint.TextSize = textSize;
 
             // Draw left in.
@@ -119,19 +123,13 @@ namespace Gezotype.Android.Views
             // Draw center.
             var l = _keyboard.GetLLabels();
             var r = _keyboard.GetRLabels();
-
-            var cx = MeasuredWidth / 2;
-            var cy = MeasuredHeight / 2;
-            var centerBarHeight = MeasuredHeight / 6;
-            var centerLabelYOffset = centerBarHeight / 2 + baselineShift;
-
             for (int i = 1; i < 5; ++i)
             {
-                canvas.DrawText(l[i - 1].ToString(),
+                canvas.DrawText(l[i - 1].ToString().ToUpper(),
                     cx - labelXOffset,
                     centerBarHeight * i + centerLabelYOffset,
                     _labelPaint);
-                canvas.DrawText(r[i - 1].ToString(),
+                canvas.DrawText(r[i - 1].ToString().ToUpper(),
                     cx + labelXOffset,
                     centerBarHeight * i + centerLabelYOffset,
                     _labelPaint);
@@ -150,11 +148,6 @@ namespace Gezotype.Android.Views
 
         private void DrawGrid(Canvas canvas)
         {
-            var cx = MeasuredWidth / 2;
-            var cy = MeasuredHeight / 2;
-
-            var centerBarHeight = MeasuredHeight / 6;
-
             _paint.Color = Color.Black;
 
             // Draw center bar cluster.
@@ -169,15 +162,32 @@ namespace Gezotype.Android.Views
 
 
             // Draw side bars.
-            var sideXOffset = MeasuredWidth / 4.5f;
-            var sideBarHeight = MeasuredHeight / 3;
             canvas.DrawLine(sideXOffset, sideBarHeight, sideXOffset, sideBarHeight * 2, _paint);
             canvas.DrawLine(MeasuredWidth - sideXOffset, sideBarHeight, MeasuredWidth - sideXOffset, sideBarHeight * 2, _paint);
+        }
+
+        private void DetectCollisions(MotionEvent e, int idx)
+        {
+            
         }
 
         protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
         {
             SetMeasuredDimension(widthMeasureSpec, widthMeasureSpec);
+
+            cx = MeasuredWidth / 2;
+            cy = MeasuredHeight / 2;
+
+            centerBarHeight = MeasuredHeight / 6;
+
+            sideXOffset = MeasuredWidth / 4.5f;
+            sideBarHeight = MeasuredHeight / 3;
+            labelYOffset = sideBarHeight / 4;
+            labelXOffset = labelYOffset / 2;
+            textSize = labelYOffset / 2.5f * Resources.DisplayMetrics.Density;
+            baselineShift = textSize / 3;
+
+            centerLabelYOffset = centerBarHeight / 2 + baselineShift;
         }
 
         public override bool OnTouchEvent(MotionEvent e)
@@ -190,8 +200,6 @@ namespace Gezotype.Android.Views
                     var newTouch = new Path();
                     newTouch.MoveTo(e.GetX(e.ActionIndex), e.GetY(e.ActionIndex));
                     _touchPaths.Add(id, newTouch);
-                    System.Diagnostics.Debug.WriteLine($"Start touch {id}");
-
                     Invalidate();
                     return true;
 
@@ -199,17 +207,14 @@ namespace Gezotype.Android.Views
                     for (int i = 0; i < e.PointerCount; ++i)
                     {
                         _touchPaths[e.GetPointerId(i)].LineTo(e.GetX(i), e.GetY(i));
+                        DetectCollisions(e, i);
                     }
-                    //System.Diagnostics.Debug.WriteLine($"Touch {id} moved to {e.GetX(e.ActionIndex)}, {e.GetY(e.ActionIndex)}");
-
                     Invalidate();
                     return true;
 
                 case MotionEventActions.Up:
                 case MotionEventActions.PointerUp:
                     _touchPaths.Remove(id);
-                    System.Diagnostics.Debug.WriteLine($"End touch {id}");
-
                     Invalidate();
                     return true;
 
