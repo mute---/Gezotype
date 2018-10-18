@@ -26,7 +26,7 @@ namespace Gezotype.Android.Services
 
         void KeyboardView_CharRecongnized(object sender, CharRecognizedEventArgs e)
         {
-            CurrentInputConnection.CommitText(new Java.Lang.String(e.Char), 0);
+            CurrentInputConnection.CommitText(new Java.Lang.String(e.Char), 1);
         }
 
         void KeyboardView_Action(object sender, KeyboardActionEventArgs e)
@@ -34,7 +34,7 @@ namespace Gezotype.Android.Services
             switch (e.Action)
             {
                 case KeyboardAction.Space:
-                    CurrentInputConnection.CommitText(new Java.Lang.String(" "), 0);
+                    CurrentInputConnection.CommitText(new Java.Lang.String(" "), 1);
                     break;
 
                 case KeyboardAction.Delete:
