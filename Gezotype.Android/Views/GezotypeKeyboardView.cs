@@ -12,6 +12,7 @@ namespace Gezotype.Android.Views
     public class GezotypeKeyboardView : View
     {
         public event EventHandler<CharRecognizedEventArgs> CharRecongnized;
+        public event EventHandler<KeyboardActionEventArgs> Action;
 
         private readonly Dictionary<int, Path> _touchPaths = new Dictionary<int, Path>();
         private readonly Dictionary<int, int> _touchPrevX = new Dictionary<int, int>();
@@ -194,14 +195,23 @@ namespace Gezotype.Android.Views
                 if (y >= sideBarHeight && y <= sideBarHeight * 2)
                 {
                     if ((x >= sideXOffset && oldX < sideXOffset) || (x <= MeasuredWidth - sideXOffset && oldX > MeasuredWidth - sideXOffset))
-                        _keyboard.SetIn();
+                        _keyboard.DoIn();
                     else if ((x <= sideXOffset && oldX > sideXOffset) || (x >= MeasuredWidth - sideXOffset && oldX < MeasuredWidth - sideXOffset))
-                        _keyboard.SetOut();
+                    {
+                        var action = _keyboard.DoOut();
+                        if (action != KeyboardAction.None)
+                            RaiseKeyboardAction(action);
+                    }
                 }
             }
 
             _touchPrevX[e.GetPointerId(idx)] = x;
             return false;
+        }
+
+        private void RaiseKeyboardAction(KeyboardAction action)
+        {
+            Action?.Invoke(this, new KeyboardActionEventArgs(action));
         }
 
         protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)

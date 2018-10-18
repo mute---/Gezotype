@@ -21,18 +21,26 @@ namespace Gezotype.PCL
             _currentState = KeyboardState.Normal;
         }
 
-        public void SetIn()
+        public KeyboardAction DoIn()
         {
             if (_currentState == KeyboardState.Normal)
                 _currentState = KeyboardState.In;
             else if (_currentState == KeyboardState.Out)
                 _currentState = KeyboardState.InOut;
+
+            return KeyboardAction.None;
         }
 
-        public void SetOut()
+        public KeyboardAction DoOut()
         {
             if (_currentState == KeyboardState.Normal)
                 _currentState = KeyboardState.Out;
+            else if (_currentState == KeyboardState.In)
+                return KeyboardAction.Space;
+            else if (_currentState == KeyboardState.InOut)
+                return KeyboardAction.Delete;
+
+            return KeyboardAction.None;
         }
 
         public void SetInOut()
