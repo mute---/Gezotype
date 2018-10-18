@@ -14,6 +14,7 @@ namespace Gezotype.Android.Views
         public event EventHandler<CharRecognizedEventArgs> CharRecongnized;
 
         private readonly Dictionary<int, Path> _touchPaths = new Dictionary<int, Path>();
+        private readonly Dictionary<int, int> _touchPrevX = new Dictionary<int, int>();
         private readonly Paint _paint = new Paint();
         private readonly TextPaint _labelPaint = new TextPaint();
         private readonly Keyboard _keyboard = new Keyboard();
@@ -59,66 +60,70 @@ namespace Gezotype.Android.Views
             // Draw left in.
             _labelPaint.TextAlign = Paint.Align.Center;
             var lInLabels = _keyboard.GetLInLabels();
-            
-            for (int i = 1; i < 5; ++i)
-            {
-                canvas.DrawText(lInLabels[i - 1].ToString(), 
-                    sideXOffset - labelXOffset, 
-                    sideBarHeight + labelYOffset * i - baselineShift, 
-                    _labelPaint);
-            }
+            if (!string.IsNullOrEmpty(lInLabels))
+                for (int i = 1; i < 5; ++i)
+                {
+                    canvas.DrawText(lInLabels[i - 1].ToString(), 
+                        sideXOffset - labelXOffset, 
+                        sideBarHeight + labelYOffset * i - baselineShift, 
+                        _labelPaint);
+                }
 
             // Draw left out.
             var lOutLabels = _keyboard.GetLOutLabels();
-            for (int i = 1; i < 5; ++i)
-            {
-                canvas.DrawText(lOutLabels[i - 1].ToString(),
-                    sideXOffset + labelXOffset,
-                    sideBarHeight + labelYOffset * i - baselineShift,
-                    _labelPaint);
-            }
+            if (!string.IsNullOrEmpty(lOutLabels))
+                for (int i = 1; i < 5; ++i)
+                {
+                    canvas.DrawText(lOutLabels[i - 1].ToString(),
+                        sideXOffset + labelXOffset,
+                        sideBarHeight + labelYOffset * i - baselineShift,
+                        _labelPaint);
+                }
 
             // Draw left inout.
             var lInOutLabels = _keyboard.GetLInOutLabels();
-            for (int i = 1; i < 5; ++i)
-            {
-                canvas.DrawText(lInOutLabels[i - 1].ToString(),
-                    sideXOffset + labelXOffset * 2.5f,
-                    sideBarHeight + labelYOffset * i - baselineShift,
-                    _labelPaint);
-            }
+            if (!string.IsNullOrEmpty(lInOutLabels))
+                for (int i = 1; i < 5; ++i)
+                {
+                    canvas.DrawText(lInOutLabels[i - 1].ToString(),
+                        sideXOffset + labelXOffset * 2.5f,
+                        sideBarHeight + labelYOffset * i - baselineShift,
+                        _labelPaint);
+                }
 
             // Draw right in.
             _labelPaint.TextAlign = Paint.Align.Center;
             var rInLabels = _keyboard.GetRInLabels();
-
-            for (int i = 1; i < 5; ++i)
-            {
-                canvas.DrawText(rInLabels[i - 1].ToString(),
-                    MeasuredWidth - sideXOffset + labelXOffset,
-                    sideBarHeight + labelYOffset * i - baselineShift,
-                    _labelPaint);
-            }
+            if (!string.IsNullOrEmpty(rInLabels))
+                for (int i = 1; i < 5; ++i)
+                {
+                    canvas.DrawText(rInLabels[i - 1].ToString(),
+                        MeasuredWidth - sideXOffset + labelXOffset,
+                        sideBarHeight + labelYOffset * i - baselineShift,
+                        _labelPaint);
+                }
 
             // Draw left out.
             var rOutLabels = _keyboard.GetROutLabels();
-            for (int i = 1; i < 5; ++i)
-            {
-                canvas.DrawText(rOutLabels[i - 1].ToString(),
-                    MeasuredWidth - sideXOffset - labelXOffset,
-                    sideBarHeight + labelYOffset * i - baselineShift,
-                    _labelPaint);
-            }
+            if (!string.IsNullOrEmpty(rOutLabels))
+                for (int i = 1; i < 5; ++i)
+                {
+                    canvas.DrawText(rOutLabels[i - 1].ToString(),
+                        MeasuredWidth - sideXOffset - labelXOffset,
+                        sideBarHeight + labelYOffset * i - baselineShift,
+                        _labelPaint);
+                }
 
             // Draw left inout.
             var rInOutLabels = _keyboard.GetRInOutLabels();
-            for (int i = 1; i < 5; ++i)
-            {
-                canvas.DrawText(rInOutLabels[i - 1].ToString(),
-                    MeasuredWidth - sideXOffset - labelXOffset * 2.5f,
-                    sideBarHeight + labelYOffset * i - baselineShift,
-                    _labelPaint);
-            }
+            if (!string.IsNullOrEmpty(rInOutLabels))
+                for (int i = 1; i < 5; ++i)
+                {
+                    canvas.DrawText(rInOutLabels[i - 1].ToString(),
+                        MeasuredWidth - sideXOffset - labelXOffset * 2.5f,
+                        sideBarHeight + labelYOffset * i - baselineShift,
+                        _labelPaint);
+                }
 
             // Draw center.
             var l = _keyboard.GetLLabels();
@@ -166,25 +171,37 @@ namespace Gezotype.Android.Views
             canvas.DrawLine(MeasuredWidth - sideXOffset, sideBarHeight, MeasuredWidth - sideXOffset, sideBarHeight * 2, _paint);
         }
 
-        private void DetectCollisions(MotionEvent e, int idx)
+        private bool DetectedCollision(MotionEvent e, int idx)
         {
-            // Check center first.
             var x = (int)e.GetX(idx);
+            var oldX = _touchPrevX[e.GetPointerId(idx)];
             var y = (int)e.GetY(idx);
 
-            if (x < cx + 5 && x > cx - 5 && y >= centerBarHeight && y <= centerBarHeight * 5)
+            if (y >= centerBarHeight && y <= centerBarHeight * 5)
             {
                 var barIdx = (y / centerBarHeight) - 1;
-                if (IsRightMotion(x))
-                    RaiseCharRecongnized(_keyboard.GetR(barIdx).ToString());
-                else
+                if (x >= cx && x > oldX && oldX < cx)
+                {
                     RaiseCharRecongnized(_keyboard.GetL(barIdx).ToString());
-            }
-        }
+                    return true;
+                }
+                else if (x <= cx && x < oldX && oldX > cx)
+                {
+                    RaiseCharRecongnized(_keyboard.GetR(barIdx).ToString());
+                    return true;
+                }
 
-        private bool IsRightMotion(float x)
-        {
-            return x <= cx;
+                if (y >= sideBarHeight && y <= sideBarHeight * 2)
+                {
+                    if ((x >= sideXOffset && oldX < sideXOffset) || (x <= MeasuredWidth - sideXOffset && oldX > MeasuredWidth - sideXOffset))
+                        _keyboard.SetIn();
+                    else if ((x <= sideXOffset && oldX > sideXOffset) || (x >= MeasuredWidth - sideXOffset && oldX < MeasuredWidth - sideXOffset))
+                        _keyboard.SetOut();
+                }
+            }
+
+            _touchPrevX[e.GetPointerId(idx)] = x;
+            return false;
         }
 
         protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
@@ -216,15 +233,23 @@ namespace Gezotype.Android.Views
                     var newTouch = new Path();
                     newTouch.MoveTo(e.GetX(e.ActionIndex), e.GetY(e.ActionIndex));
                     _touchPaths.Add(id, newTouch);
+                    _touchPrevX.Add(id, (int)e.GetX(e.ActionIndex));
                     Invalidate();
                     return true;
 
                 case MotionEventActions.Move:
                     for (int i = 0; i < e.PointerCount; ++i)
                     {
+                        if ((int)e.GetX(i) == _touchPrevX[e.GetPointerId(i)])
+                            continue;
                         _touchPaths[e.GetPointerId(i)].LineTo(e.GetX(i), e.GetY(i));
-                        System.Diagnostics.Debug.WriteLine($"Pointer {i} moved to {e.GetX(i)}, {e.GetY(i)}");
-                        DetectCollisions(e, i);
+                        if (DetectedCollision(e, i))
+                        {
+                            _touchPrevX[e.GetPointerId(i)] = (int)e.GetX(i);
+                            _touchPaths[e.GetPointerId(i)].Reset();
+                            _touchPaths[e.GetPointerId(i)].MoveTo(e.GetX(i), e.GetY(i));
+                            _keyboard.ResetState();
+                        }
                     }
                     Invalidate();
                     return true;
@@ -232,11 +257,15 @@ namespace Gezotype.Android.Views
                 case MotionEventActions.Up:
                 case MotionEventActions.PointerUp:
                     _touchPaths.Remove(id);
+                    _touchPrevX.Remove(id);
+                    _keyboard.ResetState();
                     Invalidate();
                     return true;
 
                 case MotionEventActions.Cancel:
                     _touchPaths.Clear();
+                    _touchPrevX.Clear();
+                    _keyboard.ResetState();
                     Invalidate();
                     return true;
 

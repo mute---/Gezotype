@@ -25,6 +25,8 @@ namespace Gezotype.PCL
         {
             if (_currentState == KeyboardState.Normal)
                 _currentState = KeyboardState.In;
+            else if (_currentState == KeyboardState.Out)
+                _currentState = KeyboardState.InOut;
         }
 
         public void SetOut()
