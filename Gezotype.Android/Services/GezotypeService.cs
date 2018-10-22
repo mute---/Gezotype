@@ -18,13 +18,13 @@ namespace Gezotype.Android.Services
         public override View OnCreateInputView()
         {
             var keyboardView = LayoutInflater.Inflate(Resource.Layout.keyboard_view, null) as GezotypeKeyboardView;
-            keyboardView.CharRecongnized += KeyboardView_CharRecongnized;
+            keyboardView.CharRecognized += KeyboardViewCharRecognized;
             keyboardView.Action += KeyboardView_Action;
 
             return keyboardView;
         }
 
-        void KeyboardView_CharRecongnized(object sender, CharRecognizedEventArgs e)
+        void KeyboardViewCharRecognized(object sender, CharRecognizedEventArgs e)
         {
             CurrentInputConnection.CommitText(new Java.Lang.String(e.Char), 1);
         }
