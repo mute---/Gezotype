@@ -20,16 +20,18 @@ namespace Gezotype.Android.Views
         private readonly TextPaint _labelPaint = new TextPaint();
         private readonly Keyboard _keyboard = new Keyboard();
 
-        int cx;
-        int cy;
-        int centerBarHeight;
-        float sideXOffset;
+        private int _cx;
+        private int _cy;
+        private int _centerBarHeight;
+        private float _sideXOffset;
         private float _sideBarHeight;
-        float labelYOffset;
-        float labelXOffset;
-        float textSize;
-        float baselineShift;
-        float centerLabelYOffset;
+        private float _labelYOffset;
+        private float _labelXOffset;
+        private float _textSize;
+        private float _baselineShift;
+        private float _centerLabelYOffset;
+
+        private const int SegmentHeight = 50;
 
         public GezotypeKeyboardView(Context context, IAttributeSet set) : base(context, set) 
         {
@@ -56,17 +58,17 @@ namespace Gezotype.Android.Views
         private void DrawLabels(Canvas canvas)
         {
             _labelPaint.Color = Color.Black;
-            _labelPaint.TextSize = textSize;
+            _labelPaint.TextSize = _textSize;
 
             // Draw left in.
             _labelPaint.TextAlign = Paint.Align.Center;
             var lInLabels = _keyboard.GetLInLabels();
             if (!string.IsNullOrEmpty(lInLabels))
-                for (int i = 1; i < 5; ++i)
+                for (var i = 1; i < 5; ++i)
                 {
                     canvas.DrawText(lInLabels[i - 1].ToString(), 
-                        sideXOffset - labelXOffset, 
-                        _sideBarHeight + labelYOffset * i - baselineShift,
+                        _sideXOffset - _labelXOffset,
+                        _sideBarHeight + _labelYOffset * i - _baselineShift,
                         _labelPaint);
                 }
 
@@ -76,8 +78,8 @@ namespace Gezotype.Android.Views
                 for (var i = 1; i < 5; ++i)
                 {
                     canvas.DrawText(lOutLabels[i - 1].ToString(),
-                        sideXOffset + labelXOffset,
-                        _sideBarHeight + labelYOffset * i - baselineShift,
+                        _sideXOffset + _labelXOffset,
+                        _sideBarHeight + _labelYOffset * i - _baselineShift,
                         _labelPaint);
                 }
 
@@ -87,8 +89,8 @@ namespace Gezotype.Android.Views
                 for (var i = 1; i < 5; ++i)
                 {
                     canvas.DrawText(lInOutLabels[i - 1].ToString(),
-                        sideXOffset + labelXOffset * 2.5f,
-                        _sideBarHeight + labelYOffset * i - baselineShift,
+                        _sideXOffset + _labelXOffset * 2.5f,
+                        _sideBarHeight + _labelYOffset * i - _baselineShift,
                         _labelPaint);
                 }
 
@@ -99,8 +101,8 @@ namespace Gezotype.Android.Views
                 for (var i = 1; i < 5; ++i)
                 {
                     canvas.DrawText(rInLabels[i - 1].ToString(),
-                        MeasuredWidth - sideXOffset + labelXOffset,
-                        _sideBarHeight + labelYOffset * i - baselineShift,
+                        MeasuredWidth - _sideXOffset + _labelXOffset,
+                        _sideBarHeight + _labelYOffset * i - _baselineShift,
                         _labelPaint);
                 }
 
@@ -110,8 +112,8 @@ namespace Gezotype.Android.Views
                 for (var i = 1; i < 5; ++i)
                 {
                     canvas.DrawText(rOutLabels[i - 1].ToString(),
-                        MeasuredWidth - sideXOffset - labelXOffset,
-                        _sideBarHeight + labelYOffset * i - baselineShift,
+                        MeasuredWidth - _sideXOffset - _labelXOffset,
+                        _sideBarHeight + _labelYOffset * i - _baselineShift,
                         _labelPaint);
                 }
 
@@ -121,8 +123,8 @@ namespace Gezotype.Android.Views
                 for (var i = 1; i < 5; ++i)
                 {
                     canvas.DrawText(rInOutLabels[i - 1].ToString(),
-                        MeasuredWidth - sideXOffset - labelXOffset * 2.5f,
-                        _sideBarHeight + labelYOffset * i - baselineShift,
+                        MeasuredWidth - _sideXOffset - _labelXOffset * 2.5f,
+                        _sideBarHeight + _labelYOffset * i - _baselineShift,
                         _labelPaint);
                 }
 
@@ -132,12 +134,12 @@ namespace Gezotype.Android.Views
             for (var i = 1; i < 5; ++i)
             {
                 canvas.DrawText(l[i - 1].ToString().ToUpper(),
-                    cx - labelXOffset,
-                    centerBarHeight * i + centerLabelYOffset,
+                    _cx - _labelXOffset,
+                    _centerBarHeight * i + _centerLabelYOffset,
                     _labelPaint);
                 canvas.DrawText(r[i - 1].ToString().ToUpper(),
-                    cx + labelXOffset,
-                    centerBarHeight * i + centerLabelYOffset,
+                    _cx + _labelXOffset,
+                    _centerBarHeight * i + _centerLabelYOffset,
                     _labelPaint);
             }
         }
@@ -157,19 +159,19 @@ namespace Gezotype.Android.Views
             _paint.Color = Color.Black;
 
             // Draw center bar cluster.
-            canvas.DrawLine(cx, centerBarHeight, cx, centerBarHeight * 5, _paint);
+            canvas.DrawLine(_cx, _centerBarHeight, _cx, _centerBarHeight * 5, _paint);
 
             _paint.SetStyle(Paint.Style.FillAndStroke);
             for (var i = 1; i < 6; ++i)
             {
-                canvas.DrawCircle(cx, centerBarHeight * i, 3 * Resources.DisplayMetrics.Density, _paint);
+                canvas.DrawCircle(_cx, _centerBarHeight * i, 3 * Resources.DisplayMetrics.Density, _paint);
             }
             _paint.SetStyle(Paint.Style.Stroke);
 
 
             // Draw side bars.
-            canvas.DrawLine(sideXOffset, _sideBarHeight, sideXOffset, _sideBarHeight * 2, _paint);
-            canvas.DrawLine(MeasuredWidth - sideXOffset, _sideBarHeight, MeasuredWidth - sideXOffset, _sideBarHeight * 2, _paint);
+            canvas.DrawLine(_sideXOffset, _sideBarHeight, _sideXOffset, _sideBarHeight * 2, _paint);
+            canvas.DrawLine(MeasuredWidth - _sideXOffset, _sideBarHeight, MeasuredWidth - _sideXOffset, _sideBarHeight * 2, _paint);
         }
 
         private bool DetectedCollision(MotionEvent e, int idx)
@@ -178,15 +180,15 @@ namespace Gezotype.Android.Views
             var oldX = _touchPrevX[e.GetPointerId(idx)];
             var y = (int)e.GetY(idx);
 
-            if (y >= centerBarHeight && y <= centerBarHeight * 5)
+            if (y >= _centerBarHeight && y <= _centerBarHeight * 5)
             {
-                var barIdx = (y / centerBarHeight) - 1;
-                if (x >= cx && x > oldX && oldX < cx)
+                var barIdx = (y / _centerBarHeight) - 1;
+                if (x >= _cx && x > oldX && oldX < _cx)
                 {
                     RaiseCharRecognized(_keyboard.GetL(barIdx).ToString());
                     return true;
                 }
-                else if (x <= cx && x < oldX && oldX > cx)
+                else if (x <= _cx && x < oldX && oldX > _cx)
                 {
                     RaiseCharRecognized(_keyboard.GetR(barIdx).ToString());
                     return true;
@@ -194,9 +196,9 @@ namespace Gezotype.Android.Views
 
                 if (y >= _sideBarHeight && y <= _sideBarHeight * 2)
                 {
-                    if ((x >= sideXOffset && oldX < sideXOffset) || (x <= MeasuredWidth - sideXOffset && oldX > MeasuredWidth - sideXOffset))
+                    if ((x >= _sideXOffset && oldX < _sideXOffset) || (x <= MeasuredWidth - _sideXOffset && oldX > MeasuredWidth - _sideXOffset))
                         _keyboard.DoIn();
-                    else if ((x <= sideXOffset && oldX > sideXOffset) || (x >= MeasuredWidth - sideXOffset && oldX < MeasuredWidth - sideXOffset))
+                    else if ((x <= _sideXOffset && oldX > _sideXOffset) || (x >= MeasuredWidth - _sideXOffset && oldX < MeasuredWidth - _sideXOffset))
                     {
                         var action = _keyboard.DoOut();
                         if (action != KeyboardAction.None)
@@ -220,19 +222,12 @@ namespace Gezotype.Android.Views
             var height = MeasureSpec.GetSize(heightMeasureSpec);
             SetMeasuredDimension(width, height);
 
-            cx = width / 2;
-            cy = height / 2;
+            _cx = width / 2;
+            _cy = height / 2;
 
-            centerBarHeight = MeasuredHeight / 6;
+            _sideXOffset = width / 4.5f;
 
-            sideXOffset = MeasuredWidth / 4.5f;
-            _sideBarHeight = MeasuredHeight / 3;
-            labelYOffset = _sideBarHeight / 4;
-            labelXOffset = labelYOffset / 2;
-            textSize = labelYOffset / 2.5f * Resources.DisplayMetrics.Density;
-            baselineShift = textSize / 3;
-
-            centerLabelYOffset = centerBarHeight / 2 + baselineShift;
+            _centerLabelYOffset = _centerBarHeight / 2 + _baselineShift;
         }
 
         public override bool OnTouchEvent(MotionEvent e)
